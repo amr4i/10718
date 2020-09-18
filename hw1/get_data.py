@@ -32,12 +32,34 @@ if args.store:
     conn = open_db_connection()
     cur = conn.cursor()
 
-    command = os.popen("cat data.csv | tr [:upper:] [:lower:] | tr ' ' '_' | sed 's/#/num/' | " + \
+    create_command = os.popen("cat data.csv | tr [:upper:] [:lower:] | tr ' ' '_' | sed 's/#/num/' | " + \
                        "csvsql -i postgresql --db-schema acs --tables as").read()
+    print(create_command)
+    cur.execute(create_command)
 
-    print(command)
+    # building primary index for table
+    with open("data.csv", "r") as f:
+        header = f.readlines()[0].split(",")
+
+    if header[0] == 'state':
+        keys = ['state']
+    else:
+        keys = ['us']
+    if header[1] == 'county':
+        keys.append('county')
+    if header[2] == 'tract':
+        keys.append('tract')
+    if header[3] == 'block group':
+        keys.append("block group")
+    elif header[3] == 'block':
+        keys.append('block')
+    key = tuple(key)
+
+    command = f"ALTER TABLE acs.as ADD PRIMARY KEY {key}"
+    cur.execute(command)
 
     # Close communication with the database
     cur.close()
+    conn.commit()
     conn.close()
 
