@@ -50,7 +50,7 @@ if args.store:
     if header[2] == 'tract':
         keys += ', tract'
     if header[3] == 'block group':
-        keys += ", block group"
+        keys += ", block_group"
     elif header[3] == 'block':
         keys += ', block'
 
