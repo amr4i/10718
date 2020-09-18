@@ -56,6 +56,7 @@ if args.store:
     key = tuple(key)
 
     command = f"ALTER TABLE acs.as ADD PRIMARY KEY {key}"
+    print(command)
     cur.execute(command)
 
     # Close communication with the database
