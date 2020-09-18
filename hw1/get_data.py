@@ -41,7 +41,7 @@ if args.store:
     cur.execute(schema_command)
 
     # drop table if it exists already
-    drop_command = f"DROP TABLE IF EXISTS {schema_name}.{table_name};
+    drop_command = f"DROP TABLE IF EXISTS {schema_name}.{table_name};"
     print(drop_command)
 
     # creating table
