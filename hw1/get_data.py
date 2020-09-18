@@ -42,20 +42,19 @@ if args.store:
         header = f.readlines()[0].split(",")
 
     if header[0] == 'state':
-        keys = ['state']
+        keys = 'state'
     else:
-        keys = ['us']
+        keys = 'us'
     if header[1] == 'county':
-        keys.append('county')
+        keys += ', county'
     if header[2] == 'tract':
-        keys.append('tract')
+        keys += ', tract'
     if header[3] == 'block group':
-        keys.append("block group")
+        keys += ", block group"
     elif header[3] == 'block':
-        keys.append('block')
-    keys = tuple(keys)
+        keys += ', block'
 
-    command = f"ALTER TABLE acs.as ADD PRIMARY KEY {keys}"
+    command = f"ALTER TABLE acs.as ADD PRIMARY KEY ({keys})"
     print(command)
     cur.execute(command)
 
