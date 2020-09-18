@@ -72,7 +72,7 @@ if args.store:
     cur.execute(index_command)
 
     # copying data to table
-    f = open("data.csv", "w")
+    f = open("data.csv", "r")
     # next(f) #ignore header
     cur.copy_from(f, f"{schema_name}.{table_name}", sep=',')
     f.close()
