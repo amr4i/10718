@@ -7,11 +7,17 @@ import yaml
 import psycopg2 as pg2
 import numpy as np
 
-with open('secrets.yaml', 'r') as f:
-    # loads contents of secrets.yaml into a python dictionary
-    secret_config = yaml.safe_load(f.read())
-    db_params = secret_config['db']
-    API_KEY = secret_config['web_resource']['api_key']
+try:
+    with open('secrets.yaml', 'r') as f:
+        # loads contents of secrets.yaml into a python dictionary
+        secret_config = yaml.safe_load(f.read())
+        db_params = secret_config['db']
+        API_KEY = secret_config['web_resource']['api_key']
+except FileNotFoundError:
+    print("Could not find secrets.yaml file. Proceeding without API_KEY. Database connection will not be established.")
+    db_params = None
+    API_KEY = None
+
 
 
 def open_db_connection():
@@ -21,6 +27,10 @@ def open_db_connection():
     :return:
         connection object
     """
+    if db_params is None:
+        print("Cannot establish connection to database. Please provide db_params in secrets.yaml file.")
+        exit(1)
+
     conn = pg2.connect(
         host=db_params['host'],
         port=db_params['port'],
