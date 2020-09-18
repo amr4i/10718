@@ -5,6 +5,7 @@ from tqdm import tqdm
 from ast import literal_eval
 import yaml
 import psycopg2 as pg2
+import numpy as np
 
 with open('secrets.yaml', 'r') as f:
     # loads contents of secrets.yaml into a python dictionary
@@ -78,6 +79,33 @@ def get_variables(filename):
     return vars, headers
 
 
+def fix_index(data):
+    """
+    Improve the index from one complex string entry, to multiple simpler int entries
+
+    :param:
+        data (pandas.DataFrame): Index of the format censusdata.censusdata.censusgeo
+
+    :return:
+        a pandas.DataFrame object with added entries for stateID, [countyID], [tractID], [BlockGroupID]
+    """
+    index_list = data.index.tolist()
+    new_entries = [entry.params() for entry in index_list]
+
+    headers = []
+    index_size = len(new_entries[0])
+    for i in range(index_size):
+        headers.append(new_entries[0][i][0])
+    new_entries = [[e[1] for e in entry] for entry in new_entries]
+    new_entries = np.array(new_entries, dtype=int)
+
+    data = data.reset_index(drop=True)
+    for i in range(index_size):
+        data.insert(i, headers[i].strip(), new_entries[:, i])
+
+    return data
+
+
 def download_data(vars):
     """
     function to download data from the ACS website
@@ -100,7 +128,8 @@ def download_data(vars):
         local_data = censusdata.download(data_source, year, geo, vars, tabletype=tabletype, key=API_KEY)
         data.append(local_data)
     data = pd.concat(data)
-    df.columns = headers
+    data.columns = headers
+    data = fix_index(data)
     return data
 
 
