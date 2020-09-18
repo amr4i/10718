@@ -53,9 +53,9 @@ if args.store:
         keys.append("block group")
     elif header[3] == 'block':
         keys.append('block')
-    key = tuple(key)
+    keys = tuple(keys)
 
-    command = f"ALTER TABLE acs.as ADD PRIMARY KEY {key}"
+    command = f"ALTER TABLE acs.as ADD PRIMARY KEY {keys}"
     print(command)
     cur.execute(command)
 
