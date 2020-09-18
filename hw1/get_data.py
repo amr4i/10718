@@ -26,7 +26,7 @@ if args.get:
     # to download the data from the CENSUS
     df = download_data('useful_variables.txt')
     # saves the retrieved data to a csv
-    df.to_csv('data.csv')
+    df.to_csv('data.csv', index=False)
 
 if args.store:
     conn = open_db_connection()
