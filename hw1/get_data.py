@@ -72,9 +72,10 @@ if args.store:
     cur.execute(index_command)
 
     # copying data to table
-    copy_command = f"\copy {schema_name}.{table_name} from 'data.csv' WITH CSV HEADER;"
-    print(copy_command)
-    cur.execute(copy_command)
+    f = open("data.csv", "w")
+    # next(f) #ignore header
+    cur.copy_from(f, f"{schema_name}.{table_name}", sep=',')
+    f.close()
 
     # Close communication with the database
     cur.close()
