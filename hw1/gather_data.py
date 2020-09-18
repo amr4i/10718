@@ -27,7 +27,7 @@ def open_db_connection():
         user=db_params['user'],
         password=db_params['password']
     )
-    print(f"Connection opened to database {dbname}")
+    print(f"Connection opened to database {db_params['dbname']}")
     return conn
 
 
@@ -69,12 +69,13 @@ def get_variables(filename):
     with open(filename, 'r') as f:
        all_tuples = f.readlines()
 
-    def oper(tuple):
+    def oper(tuple, i):
         tuple = literal_eval(tuple)
-        return tuple[0]
+        return tuple[i]
 
-    vars = [oper(tuple) for tuple in all_tuples]
-    return vars
+    vars = [oper(tuple, 0) for tuple in all_tuples]
+    headers = [oper(tuple, 1) for tuple in all_tuples]
+    return vars, headers
 
 
 def download_data(vars):
@@ -83,22 +84,23 @@ def download_data(vars):
 
     :param:
         geo_level (geoLevel object): which geophical granularity to obtain for the data
-        vars: Can be a list of varible ids, or a file name that holds tuples of the variables,
-            in the format returned by censusdata.search()
+        vars (string): a file name that holds 3-tuples of the variables,
+            (in the format returned by censusdata.search()),
+            where first is the variable id, and second is the variable header.
     :return:
         a pandas.DataFrame object
     """
     gl = geoLevel(geo_level_name)
     print(f"Getting {gl.name} level geographies...")
     geographies = get_censusgeos(gl)
-    if type(vars) == str:
-        vars = get_variables(vars)
+    vars, headers = get_variables(vars)
     data = []
     print("Downloading selected variables for these geographies...")
     for geo in tqdm(geographies):
         local_data = censusdata.download(data_source, year, geo, vars, tabletype=tabletype, key=API_KEY)
         data.append(local_data)
     data = pd.concat(data)
+    df.columns = headers
     return data
 
 
