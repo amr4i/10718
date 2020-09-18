@@ -29,11 +29,24 @@ if args.get:
     df.to_csv('data.csv', index=False)
 
 if args.store:
+    table_name = "as"
+    schema_name = "acs"
+
     conn = open_db_connection()
     cur = conn.cursor()
 
-    create_command = os.popen("cat data.csv | tr [:upper:] [:lower:] | tr ' ' '_' | sed 's/#/num/' | " + \
-                       "csvsql -i postgresql --db-schema acs --tables as").read()
+    # creating schema
+    schema_command = f"CREATE SCHEMA IF NOT EXISTS {schema_name};"
+    print(schema_command)
+    cur.execute(schema_command)
+
+    # drop table if it exists already
+    drop_command = f"DROP TABLE IF EXISTS {schema_name}.{table_name};
+    print(drop_command)
+
+    # creating table
+    create_command = os.popen(f"cat data.csv | tr [:upper:] [:lower:] | tr ' ' '_' | sed 's/#/num/' | " + \
+                       f"csvsql -i postgresql --db-schema {schema_name} --tables {table_name} ").read()
     print(create_command)
     cur.execute(create_command)
 
@@ -54,9 +67,14 @@ if args.store:
     elif header[3] == 'block':
         keys += ', block'
 
-    command = f"ALTER TABLE acs.as ADD PRIMARY KEY ({keys})"
-    print(command)
-    cur.execute(command)
+    index_command = f"ALTER TABLE {schema_name}.{table_name} ADD PRIMARY KEY ({keys})"
+    print(index_command)
+    cur.execute(index_command)
+
+    # copying data to table
+    copy_command = f"\COPY {schema_name}.{table_name} from 'data.csv' WITH CSV HEADER;"
+    print(copy_command)
+    cur.execute(copy_command)
 
     # Close communication with the database
     cur.close()
