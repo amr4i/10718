@@ -72,7 +72,7 @@ if args.store:
     cur.execute(index_command)
 
     # copying data to table
-    copy_command = f"COPY {schema_name}.{table_name} from 'data.csv' WITH CSV HEADER;"
+    copy_command = f"\copy {schema_name}.{table_name} from 'data.csv' WITH CSV HEADER;"
     print(copy_command)
     cur.execute(copy_command)
 
