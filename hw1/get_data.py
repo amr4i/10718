@@ -43,8 +43,7 @@ if args.store:
     # drop table if it exists already
     drop_command = f"DROP TABLE IF EXISTS {schema_name}.{table_name};"
     print(drop_command)
-    conn.commit()
-    sleep(2)
+    cur.execute(drop_command)
 
     # creating table
     create_command = os.popen(f"cat data.csv | tr [:upper:] [:lower:] | tr ' ' '_' | sed 's/#/num/' | " + \
