@@ -29,7 +29,7 @@ if args.get:
     df.to_csv('data.csv', index=False)
 
 if args.store:
-    table_name = "as"
+    table_name = "amritsin_hw1"
     schema_name = "acs"
 
     conn = open_db_connection()
